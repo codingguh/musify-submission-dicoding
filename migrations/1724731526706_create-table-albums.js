@@ -9,7 +9,7 @@ exports.shorthands = undefined;
  * @returns {Promise<void> | void}
  */
 exports.up = (pgm) => {
-    gm.createTable('albums', {
+    pgm.createTable('albums', {
         id: {
           type: 'VARCHAR(50)',
           primaryKey: true,
