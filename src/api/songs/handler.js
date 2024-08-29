@@ -10,13 +10,7 @@ class SongsHandler {
 
   async postSongHandler(request, h) {
     this._validator.validateSongPayload(request.payload);
-    const {
-      title, year, genre, performer, duration, albumId,
-    } = request.payload;
-
-    const songId = await this._service.addSong({
-      title, year, genre, performer, duration, albumId,
-    });
+    const songId = await this._service.addSong(request.payload);
 
     const response = h.response({
       status: 'success',
@@ -30,21 +24,20 @@ class SongsHandler {
   }
 
   async getSongsHandler(request) {
-    const { title, performer } = request.query;
+    const { title = '', performer = '' } = request.query;
     let songs = await this._service.getSongs(title, performer);
 
+    // Jika 'title' or 'performer' ada, maka filter lagu berdasarkan kondisi pencarian
     if (title || performer) {
       songs = songs.filter((song) => {
-        const isTitleMatch = title
-          ? song.title.toLowerCase().includes(title.toLowerCase())
-          : true;
-        const isPerformerMatch = performer
-          ? song.performer.toLowerCase().includes(performer.toLowerCase())
-          : true;
+        // Filter lagu berdasarkan title dan performer dengan mengabaikan perbedaan kapitalisasi
+        const isTitleMatch = song.title.toLowerCase().includes(title);
+        const isPerformerMatch = song.performer.toLowerCase().includes(performer);
         return isTitleMatch && isPerformerMatch;
       });
     }
 
+    // Jika title and performer ada, batasi hasil ke 1 lagu, else batasi hasil ke 2 lagu
     if (title && performer) {
       songs = songs.slice(0, 1);
     } else {
