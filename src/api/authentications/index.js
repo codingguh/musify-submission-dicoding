@@ -1,21 +1,22 @@
-const AuthenticationsHandler = require('./handler');
-const routes = require('./routes');
+const AuthenticationHandler = require('./handler');
+const routes = require('./route');
+
 
 module.exports = {
-  name: 'authentications',
-  version: '1.0.0',
-  register: async (server, {
-    authenticationsService,
-    usersService,
-    tokenManager,
-    validator,
-  }) => {
-    const authenticationsHandler = new AuthenticationsHandler(
-      authenticationsService,
-      usersService,
-      tokenManager,
-      validator,
-    );
-    server.route(routes(authenticationsHandler));
-  },
+    name: 'authentications',
+    version: '1.0.0',
+    register: async (server, {
+        authenticationService, 
+        userService, 
+        tokenManager, 
+        validator,
+    }) => {
+        const authenticationHandler = new AuthenticationHandler(
+            authenticationService,
+            userService,
+            tokenManager,
+            validator,
+        );
+        server.route(routes(authenticationHandler));
+    },
 };

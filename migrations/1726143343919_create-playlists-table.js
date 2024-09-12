@@ -11,20 +11,28 @@ exports.shorthands = undefined;
 exports.up = (pgm) => {
     pgm.createTable('playlists', {
         id: {
-          type: 'VARCHAR(50)',
-          primaryKey: true,
+            type: 'varchar(30)',
+            primaryKey: true,
         },
         name: {
-          type: 'TEXT',
-          notNull: true,
+            type: 'varchar(50)',
+            notNull: true,
         },
         owner: {
-          type: 'VARCHAR(50)',
+            type: 'varchar(30)',
+            references: '"users"',
+            onDelete: 'cascade',
+            onUpdate: 'cascade',
         },
-      });
-
-      // memberikan constraint foreign key pada owner terhadap kolom id dari tabel users
-  pgm.addConstraint('playlists', 'fk_playlists.owner_users.id', 'FOREIGN KEY(owner) REFERENCES users(id) ON DELETE CASCADE');
+        created_at: {
+            type: 'text',
+            notNull: true,
+        },
+        updated_at: {
+            type: 'text',
+            notNull: true,
+        },
+    });
 };
 
 /**
@@ -33,6 +41,5 @@ exports.up = (pgm) => {
  * @returns {Promise<void> | void}
  */
 exports.down = (pgm) => {
-     // menghapus constraint fk_playlists.owner_users.id pada tabel playlists
-  pgm.dropConstraint('playlists', 'fk_playlists.owner_users.id');
+    pgm.dropTable('playlists');
 };

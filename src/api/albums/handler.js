@@ -1,66 +1,65 @@
-const autoBind = require('auto-bind');
-const SongsService = require('../../services/postgres/songsService');
+const {mapDBToAlbumSongService} = require('../../utils/index');
 
-class AlbumsHandler {
-  constructor(service, validator) {
-    this._service = service;
-    this._validator = validator;
-    this._songService = new SongsService();
+class AlbumHandler {
+    constructor(service, validator){
+        this._service = service;
+        this._validator = validator;
+    }
 
-    autoBind(this);
-  }
+    async postAlbumHandler(request, h) {
+        const albumValidated = this._validator.validateAlbumPayload(request.payload);
 
-  async postAlbumHandler(request, h) {
-    this._validator.validateAlbumPayload(request.payload);
-    const albumId = await this._service.addAlbum(request.payload);
+        const albumId = await this._service.addAlbum(albumValidated);
 
-    const response = h.response({
-      status: 'success',
-      message: 'Album berhasil ditambahkan',
-      data: {
-        albumId,
-      },
-    });
-    response.code(201);
-    return response;
-  }
+        const response = h.response({
+            status: 'success',
+            data: {
+                albumId: albumId,
+            },
+        });
+        response.code(201);
+        return response;
+    }
 
-  async getAlbumByIdHandler(request) {
-    const { id } = request.params;
-    const album = await this._service.getAlbumById(id);
-    const songs = await this._songService.getSongsByAlbumId(id);
+    async getAlbumByIdHandler(request, h) {
+        const {id} = request.params;
+        const album = await this._service.getAlbumById(id);
 
-    // Gabungkan data album dan data lagu
-    album.songs = songs;
+        const resultMappingAlbum = mapDBToAlbumSongService(album.album, album.songs);
 
-    return {
-      status: 'success',
-      data: {
-        album,
-      },
-    };
-  }
+        const response = h.response({
+            status: 'success',
+            data: {
+                album: resultMappingAlbum,
+            },
+        });
+        return response;
+    }
 
-  async putAlbumByIdHandler(request) {
-    this._validator.validateAlbumPayload(request.payload);
-    const { id } = request.params;
+    async editAlbumHandler(request, h) {
+        const albumValidated = this._validator.validateAlbumPayload(request.payload);
+        const {id} = request.params;
 
-    await this._service.editAlbumById(id, request.payload);
+        await this._service.editAlbumById(id, albumValidated);
 
-    return {
-      status: 'success',
-      message: 'Album berhasil diperbarui',
-    };
-  }
+        const response = h.response({
+            status: 'success',
+            message: 'Album berhasil diperbarui',
+        });
+        return response;
+    }
 
-  async deleteAlbumByIdHandler(request) {
-    const { id } = request.params;
-    await this._service.deleteAlbumById(id);
-    return {
-      status: 'success',
-      message: 'Album berhasil dihapus',
-    };
-  }
-}
+    async deleteAlbumHandler(request, h) {
+        const {id} = request.params;
 
-module.exports = AlbumsHandler;
+        await this._service.deleteAlbumById(id);
+
+        const response = h.response({
+            status: 'success',
+            message: 'Album berhasil dihapus',
+        });
+        return response;
+    }
+};
+
+module.exports = AlbumHandler;
