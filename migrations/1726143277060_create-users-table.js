@@ -11,23 +11,30 @@ exports.shorthands = undefined;
 exports.up = (pgm) => {
     pgm.createTable('users', {
         id: {
-          type: 'VARCHAR(50)',
-          primaryKey: true,
+            type: 'varchar(30)',
+            primaryKey: true,
         },
         username: {
-          type: 'VARCHAR(50)',
-          unique: true,
-          notNull: true,
-        },
-        password: {
-          type: 'TEXT',
-          notNull: true,
+            type: 'varchar(30)',
+            notNull: true,
         },
         fullname: {
-          type: 'TEXT',
-          notNull: true,
+            type: 'varchar(50)',
+            notNull: true,
         },
-      });
+        password: {
+            type: 'text',
+            notNull: true,
+        },
+        created_at: {
+            type: 'text',
+            notNull: true,
+        },
+        updated_at: {
+            type: 'text',
+            notNull: true,
+        },
+    });
 };
 
 /**
